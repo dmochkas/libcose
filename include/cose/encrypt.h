@@ -115,6 +115,10 @@ void cose_encrypt_set_payload(cose_encrypt_t *encrypt, const void *payload, size
  */
 cose_algo_t cose_encrypt_get_algo(const cose_encrypt_t *encrypt);
 
+COSE_ssize_t cose_encrypt_get_iv(const cose_encrypt_t *encrypt, const uint8_t** iv_ptr);
+
+COSE_ssize_t cose_encrypt_get_partial_iv(const cose_encrypt_t *encrypt, const uint8_t** partial_iv_ptr);
+
 /**
  * cose_encrypt_add_recipient adds an recipient as an key to an encrypt object
  *
@@ -188,6 +192,12 @@ int cose_encrypt_decrypt(const cose_encrypt_dec_t *encrypt,
                          const cose_recp_dec_t *recp,
                          const cose_key_t *key, uint8_t *buf, size_t len,
                          uint8_t *payload, size_t *payload_len);
+
+int cose_encrypt_decrypt_lw(const cose_encrypt_dec_t *encrypt,
+                         const cose_recp_dec_t *recp,
+                         const cose_key_t *key, uint8_t *buf,
+                         size_t len, uint8_t *payload, size_t *payload_len,
+                         const uint8_t* context_iv);
 
 #ifdef __cplusplus
 }

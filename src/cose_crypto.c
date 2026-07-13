@@ -56,6 +56,9 @@ bool cose_crypto_is_aead(cose_algo_t algo)
         case COSE_ALGO_AESCCM_16_128_256:
         case COSE_ALGO_AESCCM_64_128_128:
         case COSE_ALGO_AESCCM_64_128_256:
+        case COSE_ALGO_ASCON_AEAD128:
+        case COSE_ALGO_ASCON_AEAD128_64:
+        case COSE_ALGO_ASCON_AEAD128_32:
             return true;
         default:
             return false;
@@ -95,6 +98,12 @@ int cose_crypto_aead_encrypt(uint8_t *c,  /* NOLINT(readability-non-const-parame
         case COSE_ALGO_AESCCM_64_128_128:
         case COSE_ALGO_AESCCM_64_128_256:
             return cose_crypto_aead_encrypt_aesccm(c, clen, msg, msglen, aad, aadlen, npub, key, algo);
+#endif
+#ifdef HAVE_ALGO_ASCON_AEAD128
+        case COSE_ALGO_ASCON_AEAD128:
+        case COSE_ALGO_ASCON_AEAD128_64:
+        case COSE_ALGO_ASCON_AEAD128_32:
+            return cose_crypto_aead_encrypt_ascon(c, clen, msg, msglen, aad, aadlen, npub, key, algo);
 #endif
         default:
             (void)c;
@@ -146,6 +155,12 @@ int cose_crypto_aead_decrypt(uint8_t *msg, /* NOLINT(readability-non-const-param
         case COSE_ALGO_AESCCM_64_128_256:
             return cose_crypto_aead_decrypt_aesccm(msg, msglen, c, clen, aad, aadlen, npub, k, algo);
 #endif
+#ifdef HAVE_ALGO_ASCON_AEAD128
+        case COSE_ALGO_ASCON_AEAD128:
+        case COSE_ALGO_ASCON_AEAD128_64:
+        case COSE_ALGO_ASCON_AEAD128_32:
+            return cose_crypto_aead_decrypt_ascon(msg, msglen, c, clen, aad, aadlen, npub, k, algo);
+#endif
         default:
             (void)c;
             (void)clen;
@@ -181,6 +196,10 @@ COSE_ssize_t cose_crypto_aead_nonce_size(cose_algo_t algo)
         case COSE_ALGO_AESCCM_64_128_128:
         case COSE_ALGO_AESCCM_64_128_256:
             return COSE_CRYPTO_AEAD_AESCCM_64_64_128_NONCEBYTES;
+        case COSE_ALGO_ASCON_AEAD128:
+        case COSE_ALGO_ASCON_AEAD128_64:
+        case COSE_ALGO_ASCON_AEAD128_32:
+            return COSE_CRYPTO_AEAD_ASCON_NONCEBYTES;
         default:
             return COSE_ERR_NOTIMPLEMENTED;
     }

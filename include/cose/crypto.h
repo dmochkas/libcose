@@ -48,6 +48,9 @@
 #if defined(CRYPTO_TINYCRYPT)
 #include "cose/crypto/tinycrypt.h"
 #endif
+#if defined(CRYPTO_ASCON)
+#include "cose/crypto/ascon_c.h"
+#endif
 
 #include "cose/crypto/selectors.h"
 
@@ -156,6 +159,26 @@ int cose_crypto_aead_encrypt_aesccm(uint8_t *c,
                                     cose_algo_t algo);
 
 int cose_crypto_aead_decrypt_aesccm(uint8_t *msg,
+                                    size_t *msglen,
+                                    const uint8_t *c,
+                                    size_t clen,
+                                    const uint8_t *aad,
+                                    size_t aadlen,
+                                    const uint8_t *npub,
+                                    const uint8_t *k,
+                                    cose_algo_t algo);
+
+int cose_crypto_aead_encrypt_ascon(uint8_t *c,
+                                    size_t *clen,
+                                    const uint8_t *msg,
+                                    size_t msglen,
+                                    const uint8_t *aad,
+                                    size_t aadlen,
+                                    const uint8_t *npub,
+                                    const uint8_t *k,
+                                    cose_algo_t algo);
+
+int cose_crypto_aead_decrypt_ascon(uint8_t *msg,
                                     size_t *msglen,
                                     const uint8_t *c,
                                     size_t clen,

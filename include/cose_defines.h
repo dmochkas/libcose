@@ -175,6 +175,10 @@ typedef enum {
     COSE_ALGO_AESCCM_16_128_256 = 31,   /**< AES-CCM w/ 256-bit key, 128-bit tag and 13-byte nonce */
     COSE_ALGO_AESCCM_64_128_128 = 32,   /**< AES-CCM w/ 128-bit key, 128-bit tag and 7-byte nonce */
     COSE_ALGO_AESCCM_64_128_256 = 33,   /**< AES-CCM w/ 256-bit key, 128-bit tag and 7-byte nonce */
+
+    COSE_ALGO_ASCON_AEAD128 = 35,
+    COSE_ALGO_ASCON_AEAD128_64 = 36,
+    COSE_ALGO_ASCON_AEAD128_32 = 37,
 } cose_algo_t;
 
 #ifdef __cplusplus
