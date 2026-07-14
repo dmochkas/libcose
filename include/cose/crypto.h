@@ -310,6 +310,12 @@ int cose_crypto_hkdf_derive_sha256(const uint8_t *salt, size_t salt_len,
                                    const uint8_t *ikm, size_t ikm_length,
                                    const uint8_t *info, size_t info_length,
                                    uint8_t *out, size_t out_length);
+
+int cose_crypto_hkdf_derive_ascon256(const uint8_t *salt, size_t salt_len,
+                                   const uint8_t *ikm, size_t ikm_length,
+                                   const uint8_t *info, size_t info_length,
+                                   uint8_t *out, size_t out_length);
+
 /** @} */
 
 #ifdef __cplusplus

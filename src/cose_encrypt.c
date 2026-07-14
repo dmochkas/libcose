@@ -58,12 +58,12 @@ static bool _encrypt_get_nonce_enc(const cose_encrypt_t *encrypt, const uint8_t*
     const uint8_t* piv = NULL;
     COSE_ssize_t piv_len = cose_encrypt_get_partial_iv(encrypt, &piv);
     if (piv_len > 0) {
-        if (piv_len > len) {
+        if ((size_t) piv_len > len) {
             return false;
         }
 
         memcpy(nonce, context_iv, len);
-        for (int i = len - piv_len; i < len; i++) {
+        for (size_t i = len - piv_len; i < len; i++) {
             nonce[i] ^= piv[i - len + piv_len];
         }
 
@@ -79,7 +79,7 @@ static bool _encrypt_get_nonce_enc(const cose_encrypt_t *encrypt, const uint8_t*
         return false;
     }
 
-    if (iv_len != len) {
+    if ((size_t) iv_len != len) {
         return false;
     }
 
@@ -465,7 +465,7 @@ static bool _encrypt_get_nonce_dec(const cose_encrypt_dec_t *decrypt, const uint
         }
 
         memcpy(nonce, context_iv, len);
-        for (int i = len - nonce_hdr.len; i < len; i++) {
+        for (size_t i = len - nonce_hdr.len; i < len; i++) {
             nonce[i] ^= nonce_hdr.v.data[i - len + nonce_hdr.len];
         }
         return true;
