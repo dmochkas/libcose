@@ -36,6 +36,10 @@ int cose_crypto_hkdf_derive(const uint8_t *salt, size_t salt_len,
         return cose_crypto_hkdf_derive_sha256(salt, salt_len, ikm,
                                               ikm_length, info, info_length, out, out_length);
 #endif
+#ifdef HAVE_ALGO_HMAC_ASCON_HASH256
+    case COSE_ALGO_HMAC_ASCON_HASH256:
+        return cose_crypto_hkdf_derive_ascon256(salt, salt_len, ikm, ikm_length, info, info_length, out, out_length);
+#endif
     default:
         (void)salt;
         (void)salt_len;

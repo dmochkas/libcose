@@ -10,6 +10,7 @@ extern "C" {
 #define HAVE_ALGO_ASCON_AEAD128 /**< Ascon AEAD mode support with 128 bit tag */
 #define HAVE_ALGO_ASCON_AEAD128_64 /**< Ascon AEAD mode support with 64 bit tag */
 #define HAVE_ALGO_ASCON_AEAD128_32 /**< Ascon AEAD mode support with 32 bit tag */
+#define HAVE_ALGO_HMAC_ASCON_HASH256
 
 #define COSE_CRYPTO_AEAD_ASCON_KEYBYTES        16
 #define COSE_CRYPTO_AEAD_ASCON_NONCEBYTES      16

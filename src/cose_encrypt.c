@@ -241,7 +241,10 @@ static COSE_ssize_t _encrypt_payload(cose_encrypt_t *encrypt, uint8_t *buf, size
         /* At this point we have our AAD at encp with length enc_size and the
          * encrypt->payload@encrypt->payload_len to feed our algo */
         size_t cipherlen = len;
-        cose_crypto_aead_encrypt(buf, &cipherlen, encrypt->payload, encrypt->payload_len, encp, enc_size, NULL, nonce, encrypt->cek, algo);
+        int res = cose_crypto_aead_encrypt(buf, &cipherlen, encrypt->payload, encrypt->payload_len, encp, enc_size, NULL, nonce, encrypt->cek, algo);
+        if (res < 0) {
+            return res;
+        }
         *out = buf;
         return cipherlen;
     }
