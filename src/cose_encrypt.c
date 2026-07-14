@@ -57,7 +57,7 @@ static bool _encrypt_get_nonce_enc(const cose_encrypt_t *encrypt, const uint8_t*
 
     const uint8_t* piv = NULL;
     COSE_ssize_t piv_len = cose_encrypt_get_partial_iv(encrypt, &piv);
-    if (piv > 0) {
+    if (piv_len > 0) {
         if (piv_len > len) {
             return false;
         }
