@@ -75,8 +75,13 @@ static bool _encrypt_get_nonce_enc(const cose_encrypt_t *encrypt, const uint8_t*
     if (iv_len <= 0 && set_flag) {
         return true;
     }
-    if ((iv_len <= 0 && !set_flag) || (iv_len > 0 && set_flag)) {
+    if (iv_len > 0 && set_flag) {
         return false;
+    }
+    if (iv_len <= 0) {
+        // Deprecated: falling back to context_iv as nonce for backward compatibility
+        iv = context_iv;
+        iv_len = len;
     }
 
     if ((size_t) iv_len != len) {
@@ -92,15 +97,6 @@ static bool _encrypt_unprot_to_map(const cose_encrypt_t *encrypt, nanocbor_encod
     if (cose_hdr_encode_to_map(encrypt->hdrs.unprot, map)) {
         return false;
     }
-    // cose_algo_t algo = cose_encrypt_get_algo(encrypt);
-    // if (!cose_crypto_is_aead(algo)) {
-    //     nanocbor_fmt_int(map, COSE_HDR_ALG);
-    //     nanocbor_fmt_int(map, algo);
-    // }
-    // if (encrypt->nonce) {
-    //     nanocbor_fmt_int(map, COSE_HDR_IV);
-    //     nanocbor_put_bstr(map, encrypt->nonce, cose_crypto_aead_nonce_size(algo));
-    // }
     return true;
 }
 
@@ -108,11 +104,6 @@ static bool _encrypt_unprot_to_map(const cose_encrypt_t *encrypt, nanocbor_encod
 static bool _encrypt_prot_to_map(const cose_encrypt_t *encrypt, nanocbor_encoder_t *map)
 {
     cose_hdr_encode_to_map(encrypt->hdrs.prot, map);
-    // cose_algo_t algo = cose_encrypt_get_algo(encrypt);
-    // if (cose_crypto_is_aead(algo)) {
-    //     nanocbor_fmt_int(map, COSE_HDR_ALG);
-    //     nanocbor_fmt_int(map, algo);
-    // }
     return true;
 }
 
@@ -120,9 +111,6 @@ static size_t _encrypt_serialize_protected(const cose_encrypt_t *encrypt, uint8_
 {
     nanocbor_encoder_t enc;
     size_t len = cose_hdr_size(encrypt->hdrs.prot);
-    // if (cose_crypto_is_aead(cose_encrypt_get_algo(encrypt))) {
-    //     len += 1;
-    // }
     if (len == 0) {
         return 0;
     }
@@ -143,15 +131,19 @@ static void _place_cbor_protected(cose_encrypt_t *encrypt, nanocbor_encoder_t *a
 static size_t _encrypt_unprot_cbor(cose_encrypt_t *encrypt, nanocbor_encoder_t *enc)
 {
     size_t len = cose_hdr_size(encrypt->hdrs.unprot);
-    /* TODO: split */
-    // if (cose_crypto_is_aead(cose_encrypt_get_algo(encrypt))) {
-    //     /* Only the nonce */
-    //     len += 1;
-    // }
-    // else {
-    //     /* Nonce and algo */
-    //     len += 2;
-    // }
+    cose_hdr_t hdr;
+    if (!cose_hdr_get_unprotected(&encrypt->hdrs, &hdr, COSE_HDR_PARTIALIV) &&
+        !cose_hdr_get_unprotected(&encrypt->hdrs, &hdr, COSE_HDR_IV)) {
+        // Deprecated: code should not follow this logical path, header should be added externally.
+        // To be removed in future releases.
+        cose_algo_t algo = cose_encrypt_get_algo(encrypt);
+        len += 1;
+        nanocbor_fmt_map(enc, len);
+        _encrypt_unprot_to_map(encrypt, enc);
+        nanocbor_fmt_int(enc, COSE_HDR_IV);
+        nanocbor_put_bstr(enc, encrypt->nonce, cose_crypto_aead_nonce_size(algo));
+        return 0;
+    }
 
     nanocbor_fmt_map(enc, len);
     _encrypt_unprot_to_map(encrypt, enc);
@@ -305,6 +297,9 @@ COSE_ssize_t cose_encrypt_encode(cose_encrypt_t *encrypt, uint8_t *buf, size_t l
         return cipherlen;
     }
     buf = cipherpos + cipherlen;
+
+    // Assigning Context IV
+    encrypt->nonce = nonce;
 
     /* Now we have the ciphertext for the structure. Key at encrypt->cek in
      * case we need to encrypt it for recps */
